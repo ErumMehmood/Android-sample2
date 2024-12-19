@@ -1,0 +1,44 @@
+name: Visual Test and Screenshot Output
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-screenshot:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # Step 2: Set up Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '16' # Compatible Node.js version for Expo
+
+      # Step 3: Install dependencies
+      - name: Install Dependencies
+        run: yarn install
+
+      # Step 4: Start Expo Server and Build Screenshots
+      - name: Run Expo Visual Test
+        run: |
+          yarn start & # Start the Expo development server
+          sleep 30 # Wait for the server to initialize
+          npx expo-cli screenshot --output ./screenshots # Take screenshots
+        env:
+          EXPO_NO_TELEMETRY: 1
+
+      # Step 5: Upload Screenshots as Artifacts
+      - name: Upload Screenshots
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshots
+          path: ./screenshots
